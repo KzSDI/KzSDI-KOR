@@ -1,7 +1,7 @@
 카자흐스탄 SDI 시범시스템
 =======
 
-이 프로젝트는 카자흐스탄 SDI(웹기반 공간정보 검수) 시범 시스템개발 용역과제를 수행하기 위하여 제작되었습니다. 
+이 프로젝트는 OpenGDS 프로젝트를 사용하여 카자흐스탄 SDI(웹기반 공간정보 검수) 시스템 개발을 위해 생성되었습니다. 
 
 개발 목적
 ---
@@ -32,6 +32,7 @@
 12. COS 05Nov2002 (Jason Hunter License) http://www.servlets.com/
 13. Openlayers3 3.13.0 (FreeBSD) www.openlayers.org
 14. Spectrum 1.8.0 (MIT) http://numeraljs.com/
+15. OpenGDS (LGPL) https://github.com/ODTBuilder/Validator
 
 Kazakhstan SDI Demonstration System
 =======
@@ -66,6 +67,7 @@ Used Libraries
 12. COS 05Nov2002 (Jason Hunter License) http://www.servlets.com/
 13. Openlayers3 3.13.0 (FreeBSD) www.openlayers.org
 14. Spectrum 1.8.0 (MIT) http://numeraljs.com/
+15. OpenGDS (LGPL) https://github.com/ODTBuilder/Validator
 
 
 Mail
