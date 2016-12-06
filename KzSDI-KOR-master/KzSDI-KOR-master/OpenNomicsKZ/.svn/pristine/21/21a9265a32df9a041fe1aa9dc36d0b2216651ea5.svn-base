@@ -1,0 +1,15 @@
+package opennomics.com.main.user.persistent;
+
+import java.util.HashMap;
+
+import opennomics.com.main.user.domain.UserVO;
+import egovframework.rte.psl.dataaccess.mapper.Mapper;
+
+@Mapper(value="userMapper")
+public interface UserMapper {
+
+	
+	//id,pw 체크 - return User
+	UserVO loginUserByInfo(HashMap<String,Object> infoMap) throws Exception;
+	
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="opennomics.com.main.qa.persistent.ErrReportMapper">
+	
+	
+	<insert id="insertQAreport" parameterType="map">
+		insert into err_report
+		(type, num_of_items, num_of_err, accuracy, weights, weighted_value, ratio_of_err, rid)
+	    VALUES
+	    ('${reportVO.type}', cast('${reportVO.numOfItems}' as double precision),  cast('${reportVO.numOfErr}' as double precision),  cast('${reportVO.accuracy}' as double precision), cast('${reportVO.weights}' as double precision), cast('${reportVO.weightedValue}' as double precision),'${reportVO.ratioOfErr}',cast('${rid}' as int))
+	</insert>
+		<select id="selectErrReports" parameterType="int" resultType="errReport" statementType="PREPARED">
+		select *from err_report
+		where rid=${value}
+	</select> 
+	
+</mapper>

@@ -1,0 +1,45 @@
+package opennomics.com.common.qa.factory;
+
+import java.util.Vector;
+
+import org.geotools.feature.SchemaException;
+import org.json.simple.JSONObject;
+import org.opengis.feature.simple.SimpleFeature;
+
+public interface QAFactory {
+
+	SimpleFeature smallArea(SimpleFeature simpleFeatureI, double defaultArea) throws SchemaException;
+
+	SimpleFeature smallLength(SimpleFeature simpleFeatureI, double defaultLength) throws SchemaException;
+
+	Vector<SimpleFeature> entityDuplicated(SimpleFeature simpleFeatureI, SimpleFeature simpleFeatureJ) throws SchemaException;
+
+	Vector<SimpleFeature> pointDuplicated(SimpleFeature simpleFeature) throws SchemaException;
+
+	Vector<SimpleFeature> selfEntity4Line(SimpleFeature simpleFeatureI, SimpleFeature simpleFeatureJ) throws SchemaException;
+
+	Vector<SimpleFeature> selfEntity4Polygon(SimpleFeature simpleFeatureI, SimpleFeature simpleFeatureJ) throws SchemaException;
+
+	Vector<SimpleFeature> conIntersected(SimpleFeature simpleFeatureI, SimpleFeature simpleFeatureJ) throws SchemaException;
+
+	Vector<SimpleFeature> conOverDegree(SimpleFeature simpleFeature, double doubledfdegree) throws SchemaException;
+
+	Vector<SimpleFeature> conBreak(SimpleFeature simpleFeature) throws SchemaException;
+
+	SimpleFeature uselessEntity(SimpleFeature simpleFeature, String type) throws SchemaException;
+
+	Vector<SimpleFeature> selfEntity4Point(SimpleFeature simpleFeatureI, SimpleFeature simpleFeatureJ) throws SchemaException;
+
+	SimpleFeature attributeFix(SimpleFeature simpleFeature, JSONObject attributeFix) throws SchemaException;
+
+	Vector<SimpleFeature> entityDuplicatedApp(SimpleFeature simpleFeatureI, SimpleFeature simpleFeatureJ) throws SchemaException;
+
+	Vector<SimpleFeature> selfEntity4PointApp(SimpleFeature simpleFeatureI, SimpleFeature simpleFeatureJ) throws SchemaException;
+
+	Vector<SimpleFeature> selfEntity4LineApp(SimpleFeature simpleFeatureI, SimpleFeature simpleFeatureJ) throws SchemaException;
+
+	Vector<SimpleFeature> selfEntity4PolygonApp(SimpleFeature simpleFeatureI, SimpleFeature simpleFeatureJ) throws SchemaException;
+
+	Vector<SimpleFeature> conIntersectedApp(SimpleFeature simpleFeatureI, SimpleFeature simpleFeatureJ) throws SchemaException;
+
+}

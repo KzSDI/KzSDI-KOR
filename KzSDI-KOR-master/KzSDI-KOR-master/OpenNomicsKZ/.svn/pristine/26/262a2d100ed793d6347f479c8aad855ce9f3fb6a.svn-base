@@ -1,0 +1,12 @@
+package opennomics.com.main.user.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import opennomics.com.main.user.domain.UserVO;
+
+public interface UserService {
+		//아이디, 패스워드 체크
+		UserVO loginUserByInfo(HashMap<String, Object> infoMap) throws Exception;
+}

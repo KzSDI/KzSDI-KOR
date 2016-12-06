@@ -1,0 +1,179 @@
+package opennomics.com.main.receipt.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import opennomics.com.common.enums.EnRequestType;
+import opennomics.com.main.layer.service.DBLayerConvert;
+import opennomics.com.main.layer.service.LayerService;
+import opennomics.com.main.qa.domain.QAErrReportVO;
+import opennomics.com.main.qa.service.QAService;
+import opennomics.com.main.receipt.domain.ReceiptVO;
+import opennomics.com.main.receipt.persistent.ReceiptMapper;
+import opennomics.com.main.user.domain.UserVO;
+
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
+
+@Service
+public class ReceiptServiceImpl extends EgovAbstractServiceImpl implements ReceiptService {
+	
+	@Resource(name="receiptMapper")
+	private ReceiptMapper receiptMapper;
+	
+	@Autowired
+	private LayerService layerService;
+	
+	
+	@Autowired
+	private QAService qaService;
+	
+	
+	@Transactional
+	public ReceiptVO selectReceipt(int rid) throws Exception{
+		ReceiptVO receiptVO = new ReceiptVO();
+		
+		receiptVO = receiptMapper.selectReceipt(rid);
+		
+		return receiptVO;
+	}
+	
+	@Transactional
+	public List<ReceiptVO> selectAllReceiptList(int pageNum) throws Exception{
+		List<ReceiptVO> list = new ArrayList<ReceiptVO>();
+			list = receiptMapper.selectAllReceiptList(pageNum);
+		
+		return list;
+	}
+	@Transactional
+	public int selectAllReceiptListCount() throws Exception{
+		int count=0;
+		count = receiptMapper.selectAllReceiptListCount();
+		
+		
+		return count;
+	}
+	
+	@Transactional
+	public List<ReceiptVO> selectReceiptList(String stts, int pageNum) throws Exception{
+		List<ReceiptVO> list = new ArrayList<ReceiptVO>();
+		Map<String, Object> infoMap = new HashMap<String, Object>();
+		if(stts.equals(EnRequestType.WAITING_REQUEST.getTypeName())){
+			infoMap.put("stts", EnRequestType.WAITING_REQUEST.getstts());
+			infoMap.put("pageNum", pageNum);
+			list = receiptMapper.selectReceiptList(infoMap);
+		}
+		else if(stts.equals(EnRequestType.INSPECTOR_REQUEST.getTypeName())){
+			infoMap.put("stts", EnRequestType.INSPECTOR_REQUEST.getstts());
+			infoMap.put("pageNum", pageNum);
+			list = receiptMapper.selectReceiptList(infoMap);
+		}
+		else if(stts.equals(EnRequestType.CHAIRMAN_REQUEST.getTypeName())){
+			infoMap.put("stts", EnRequestType.CHAIRMAN_REQUEST.getstts());
+			infoMap.put("pageNum", pageNum);
+			list = receiptMapper.selectReceiptList(infoMap);
+		}
+		else
+			list =null;
+		
+		return list;
+	}
+	
+	@Transactional
+	public int selectReceiptListCount(String stts) throws Exception{
+		int count=0;
+		Map<String, Object> infoMap = new HashMap<String, Object>();
+		if(stts.equals(EnRequestType.WAITING_REQUEST.getTypeName())){
+			infoMap.put("stts", EnRequestType.WAITING_REQUEST.getstts());
+			count = receiptMapper.selectReceiptListCount(infoMap);
+		}
+		else if(stts.equals(EnRequestType.INSPECTOR_REQUEST.getTypeName())){
+			infoMap.put("stts", EnRequestType.INSPECTOR_REQUEST.getstts());
+			count = receiptMapper.selectReceiptListCount(infoMap);
+		}
+		else if(stts.equals(EnRequestType.CHAIRMAN_REQUEST.getTypeName())){
+			infoMap.put("stts", EnRequestType.CHAIRMAN_REQUEST.getstts());
+			count = receiptMapper.selectReceiptListCount(infoMap);
+		}
+		else
+			count =0;
+		
+		return count;
+	}
+
+	
+	@Transactional
+	public void updateApprovalRequest(Map<String,Object> updateMap){
+		try {
+			receiptMapper.updateApprovalRequest(updateMap);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public boolean approvalRequest(UserVO user, int rid, String tname, Map<String, String> attInfo,JSONObject layer, List<Map<String, Object>> errList){
+		boolean flag = false;
+		DBLayerConvert convert = new DBLayerConvert();
+		
+		List<Map<String,Object>> layersMap = convert.layers(layer);
+		List<QAErrReportVO> errReport = new ArrayList<QAErrReportVO>();
+		try {
+			errReport=qaService.listToErrReport(errList);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		JSONObject reILJson = layerService.insertLayers(rid, layersMap, attInfo,tname);
+		boolean reFlag = (Boolean) reILJson.get("flag");
+		if(reFlag==true){
+			List<Integer> oidList = new ArrayList<Integer>();
+			oidList = (List<Integer>) reILJson.get("oidList");
+			layerService.insertQaAfter(rid, oidList);
+		}
+		try {
+			qaService.insertQAreport(rid, errReport);
+			Map<String, Object> updateMap = new HashMap<String, Object>();
+			updateMap.put("userId", user.getId());
+			updateMap.put("rid", rid);
+			updateApprovalRequest(updateMap);
+			flag = true;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			flag = false;
+		}
+		return flag;
+	}
+	
+	@Transactional
+	public void updateLastApprovalRequest(Map<String,Object> updateMap){
+		int rid = Integer.valueOf(updateMap.get("rid").toString());
+		
+		try {
+			receiptMapper.updateLastApprovalRequest(updateMap);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@Transactional
+	public void updateLastDisApprovalRequest(Map<String,Object> updateMap){
+		try {
+			receiptMapper.updateLastDisApprovalRequest(updateMap);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+}

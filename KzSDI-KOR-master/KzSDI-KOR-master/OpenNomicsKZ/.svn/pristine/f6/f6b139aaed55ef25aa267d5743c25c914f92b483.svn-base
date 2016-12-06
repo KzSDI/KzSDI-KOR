@@ -1,0 +1,46 @@
+package opennomics.com.main.receipt.service;
+
+import java.util.List;
+import java.util.Map;
+
+import opennomics.com.main.qa.domain.QAErrReportVO;
+import opennomics.com.main.receipt.domain.ReceiptVO;
+import opennomics.com.main.user.domain.UserVO;
+
+import org.json.simple.JSONObject;
+
+public interface ReceiptService {
+	
+		//접수현황 리스트를 불러오다.
+		List<ReceiptVO> selectAllReceiptList(int pageNum) throws Exception;
+			
+		//접수현황 리스트수를 불러오다.
+		int selectAllReceiptListCount() throws Exception;
+		
+		//접수현황 정보를 가져오다.
+		ReceiptVO selectReceipt(int rid) throws Exception;
+		
+		//검수요청(1)을 제외한 리스트를 불러오다.
+		List<ReceiptVO> selectChairReceiptList(int pageNum) throws Exception;
+
+		//검수요청(1)을 제외한 리스트수를 불러오다.
+		int selectChairReceiptListCount() throws Exception;
+		
+		List<ReceiptVO> selectReceiptList(String stts, int pageNum) throws Exception;
+		
+		int selectReceiptListCount(String stts) throws Exception;
+		
+		
+		
+		//승인대기 - 상태변경
+		void updateApprovalRequest(Map<String, Object> updateMap) throws Exception;
+		
+		//최종승인 - 상태변경 
+		void updateLastApprovalRequest(Map<String, Object> updateMap) throws Exception;
+		
+		//최종거절 - 상태변경
+		void updateLastDisApprovalRequest(Map<String, Object> updateMap) throws Exception;
+		
+		//검수후 데이터 저장(레이어, 에러리포트) -> 접수현황 상태변경
+		boolean approvalRequest(UserVO user,int rid, String tname, Map<String, String> attInfo,JSONObject layer, List<Map<String, Object>> errList) throws Exception;
+}

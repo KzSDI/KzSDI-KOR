@@ -1,0 +1,83 @@
+package opennomics.com.main.qa.domain;
+
+public class QAErrReportVO {
+
+	String type;
+	double numOfItems = 0;
+	double numOfErr = 0;
+	String ratioOfErr = "";
+	double accuracy = 0;
+	double weights = 0;
+	double weightedValue;
+	boolean checked;
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public double getNumOfItems() {
+		return numOfItems;
+	}
+
+	public void setNumOfItems(double numOfItems) {
+		this.numOfItems = numOfItems;
+	}
+
+	public double getNumOfErr() {
+		return numOfErr;
+	}
+
+	public void setNumOfErr(double numOfErr) {
+		this.numOfErr = numOfErr;
+	}
+
+	public String getRatioOfErr() {
+		return ratioOfErr;
+	}
+
+	public void setRatioOfErr(String ratioOfErr) {
+		this.ratioOfErr = ratioOfErr;
+	}
+
+	public double getAccuracy() {
+		return accuracy;
+	}
+
+	public void setAccuracy(double accuracy) {
+		this.accuracy = accuracy;
+	}
+
+	public double getWeights() {
+		return weights;
+	}
+
+	public void setWeights(double weights) {
+		this.weights = weights;
+	}
+
+	public double getWeightedValue() {
+		return weightedValue;
+	}
+
+	public void setWeightedValue(double weightedValue) {
+		this.weightedValue = weightedValue;
+	}
+
+	public boolean isChecked() {
+		return checked;
+	}
+
+	public void setChecked(boolean checked) {
+		this.checked = checked;
+	}
+
+	@Override
+	public String toString() {
+		return "QAErrReportVO [type=" + type + ", numOfItems=" + numOfItems + ", numOfErr=" + numOfErr + ", ratioOfErr=" + ratioOfErr + ", accuracy="
+				+ accuracy + ", weights=" + weights + ", weightedValue=" + weightedValue + ", checked=" + checked + "]";
+	}
+}

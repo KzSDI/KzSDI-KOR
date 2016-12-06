@@ -1,0 +1,130 @@
+package opennomics.com.main.qa.service;
+
+import java.io.File;
+import java.util.List;
+
+import org.json.simple.JSONObject;
+import org.springframework.stereotype.Service;
+
+
+@Service
+public class ExcelServiceImpl implements ExcelService{
+	
+	@Override
+	public boolean pathConfirm(String path){
+		boolean flag = false;
+		
+		File file = new File(path);
+		
+		if(file.isDirectory()){
+			flag = true;
+		}
+		else{
+			flag = false;
+		}
+		return flag;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean downloadExcel(JSONObject json){
+		boolean flag = false;
+		String path = (String) json.get("path");
+		String fileName = (String) json.get("fileName");
+		int rid = Integer.parseInt((String) json.get("rid"));
+		List<JSONObject> errReportInfo = (List<JSONObject>) json.get("errReportInfo");
+		
+		
+		
+		/*
+		try {
+			HSSFRow row = null;
+			HSSFCell cell = null;
+			HSSFWorkbook wb = new HSSFWorkbook();
+
+			HSSFSheet sheet = wb.createSheet();
+			// 첫번째 sheet 에 키워드 정보라고 노출  
+			wb.setSheetName(0, "키워드 정보");
+			
+			// sheet에 노출될 표의 사이즈 정의
+			sheet.setColumnWidth(0, sheet.getDefaultColumnWidth() * 700);
+			sheet.setColumnWidth(1, sheet.getDefaultColumnWidth() * 4300);
+
+			// sheet에 노출될 표의 분류들 정의 
+			String[] title = {"키워드", "키워드 설명"};
+			int cellCount = title.length;
+			
+			// 셀에 만들어질 테이블 제목 라인 구성 및 백그라운드(회색) 지정 
+			HSSFCellStyle titleCellStyle = wb.createCellStyle();
+			titleCellStyle.setBorderBottom(HSSFCellStyle.BORDER_THICK);
+			titleCellStyle.setBorderLeft(HSSFCellStyle.BORDER_THICK);
+			titleCellStyle.setBorderRight(HSSFCellStyle.BORDER_THICK);
+			titleCellStyle.setBorderTop(HSSFCellStyle.BORDER_THICK);
+			titleCellStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+			titleCellStyle.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
+
+			HSSFRow titleRow = sheet.createRow((short)0);
+			for (int cellnum = 0; cellnum < cellCount; cellnum++) {
+ 
+				HSSFCell cell = titleRow.createCell(cellnum);
+				cell.setCellValue(title[cellnum]);
+				cell.setCellStyle(titleCellStyle);
+			}
+
+			// 셀에 만들어질 테이블 내용 라인 구성 및 백그라운드(하얀색) 지정 
+			HSSFCellStyle contentCellStyle = wb.createCellStyle();
+			contentCellStyle.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+			contentCellStyle.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+			contentCellStyle.setBorderRight(HSSFCellStyle.BORDER_THIN);
+			contentCellStyle.setBorderTop(HSSFCellStyle.BORDER_THIN);
+			contentCellStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+			contentCellStyle.setFillForegroundColor(HSSFColor.WHITE.index);
+
+            // 실제 내용 생성 및 스타일 지정 
+			row = sheet.createRow((short)0);
+			HSSFCell cell = row.createCell(0);
+			cell.setCellStyle(contentCellStyle);
+			cell.setCellValue("참치");
+			cell = row.createCell(1);
+			cell.setCellStyle(contentCellStyle);
+			cell.setCellValue("동원참치 ㅋㅋ ");
+			rowData = null;
+				
+			row = sheet.createRow((short)1);
+			HSSFCell cell = row.createCell(0);
+			cell.setCellStyle(contentCellStyle);
+			cell.setCellValue("갈치");
+			cell = row.createCell(1);
+			cell.setCellStyle(contentCellStyle);
+			cell.setCellValue("맛있는 생선");
+			rowData = null;
+			
+			row = sheet.createRow((short)2);
+			HSSFCell cell = row.createCell(0);
+			cell.setCellStyle(contentCellStyle);
+			cell.setCellValue("고등어");
+			cell = row.createCell(1);
+			cell.setCellStyle(contentCellStyle);
+			cell.setCellValue("바다 생선");
+			rowData = null;
+
+			try {
+				ServiceContext.setContentType("application/vnd.ms-excel;charset=utf-8");
+				ServiceContext.setHeader("Content-Disposition", "attachment;filename=" + new String("키워드 정보.xls".getBytes("euc-kr"), "8859_1"));
+				wb.write(ServiceContext.getOutputStream());
+			} catch (Exception ex) {
+				String name = ex.getClass().getName();
+
+				if (!name.equals("org.apache.catalina.connector.ClientAbortException")) {
+					throw ex;
+				}
+			}
+
+		} catch (Exception ex) {
+			throw new RuntimeException(ex.getMessage());
+		}
+		*/
+		return flag;
+	}
+	
+}

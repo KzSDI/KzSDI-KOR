@@ -1,0 +1,15 @@
+package opennomics.com.main.chairman.service;
+
+import opennomics.com.main.user.domain.UserVO;
+
+import org.json.simple.JSONObject;
+
+public interface ChairmanService {
+	
+		//승인요청 정보를 가져오다
+		JSONObject approvalRequestInfo(int rid, String tname) throws Exception;
+		
+		void updateLastApprovalRequest(int rid, UserVO chairman) throws Exception;
+
+		void updateLastDisApprovalRequest(int rid, UserVO chairman) throws Exception;
+}

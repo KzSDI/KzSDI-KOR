@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="opennomics.com.main.receipt.persistent.ReceiptMapper">
+	
+	<!-- 접수정보 불러오다. -->
+	<select id="selectReceipt" parameterType="int" resultType="receipt" statementType="PREPARED">
+		select *from request_list
+		where rid=${value}
+	</select> 
+	
+	<!-- 접수현황 리스트를 불러오다. -->
+	<select id="selectAllReceiptList" parameterType="int" resultType="receipt" statementType="PREPARED">
+		select DISTINCT r.rid, r.tname,
+		r.cdate, r.stts, r.uid, r.utype, r.jname, r.tname, r.jcontent from request_list r
+		order by r.rid DESC LIMIT 10 OFFSET #{pageNum};
+	</select> 
+	
+	<!-- 접수현황 리스트수를 불러오다. -->
+	<select id="selectAllReceiptListCount" resultType="int" statementType="PREPARED">
+		select count(DISTINCT (r.rid, r.tname,r.cdate, r.stts, r.uid, r.utype, r.jname, r.tname)) from request_list r
+	</select> 
+	
+	<!-- 접수대기 리스트를 불러오다. -->
+	<select id="selectReceiptList" parameterType="hashmap" resultType="receipt" statementType="PREPARED">
+		select DISTINCT r.rid, r.tname,
+		r.cdate, r.stts, r.uid, r.utype, r.jname, r.tname, r.jcontent from request_list r
+		where stts = #{stts}
+		order by r.rid DESC LIMIT 10 OFFSET #{pageNum};
+	</select> 
+	
+	<!-- 접수대기 리스트수를 불러오다. -->
+	<select id="selectReceiptListCount" parameterType="hashmap" resultType="int" statementType="PREPARED">
+		select count(DISTINCT (r.rid, r.tname,r.cdate, r.stts, r.uid, r.utype, r.jname, r.tname)) from request_list r
+		where stts = #{stts}
+	</select> 
+	
+	
+	<!-- 부의장 승인요청시 상태 업데이트. -->
+	<update id="updateApprovalRequest" parameterType="map"  statementType="PREPARED">
+		update request_list
+   			set stts=2 , inspector = '${userId}'
+       	where rid=cast('${rid}' as int);
+	</update>
+</mapper>

@@ -1,0 +1,50 @@
+package opennomics.com.main.qa.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import opennomics.com.main.qa.domain.QAErrReportVO;
+import opennomics.com.main.qa.service.ExcelService;
+
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller("excelController")
+@RequestMapping("/qa")
+public class ExcelController {
+
+	@Autowired
+	ExcelService excelService;
+	
+
+	@ResponseBody
+	@RequestMapping(value="/pathConfirm.ajax")
+	public boolean pathConfirmAjax(HttpServletRequest request,
+			@RequestParam(value = "path", required = false, defaultValue = "C:/") String path
+			){
+		boolean flag = false;
+		
+		flag = excelService.pathConfirm(path);
+		
+		return flag;
+	}
+	
+	@SuppressWarnings({ "unchecked", "unused" })
+	@ResponseBody
+	@RequestMapping(value="/downloadExcel.ajax")
+	public boolean downloadExcel(HttpServletRequest request,
+			 @RequestBody JSONObject json
+			){
+		boolean flag = false;
+		
+		flag = excelService.downloadExcel(json);
+		
+		return flag;
+	}
+}

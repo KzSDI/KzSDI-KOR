@@ -1,0 +1,352 @@
+package opennomics.com.main.qa.service;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import opennomics.com.common.ConvertService;
+import opennomics.com.common.qa.center.QACenter;
+import opennomics.com.common.qa.center.QACenterImpl;
+import opennomics.com.main.qa.domain.QAErrReportVO;
+import opennomics.com.main.qa.persistent.ErrReportMapper;
+
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.SchemaException;
+import org.json.simple.JSONObject;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class QAServiceImpl implements QAService {
+
+	@Resource(name = "errReportMapper")
+	private ErrReportMapper errMapper;
+
+	@SuppressWarnings("unchecked")
+	public JSONObject qaNewLayer(JSONObject geojson) throws SchemaException, IOException, NoSuchAuthorityCodeException, FactoryException {
+
+		ConvertService convertService = new ConvertService();
+		JSONObject object = convertService.stringToJSON(geojson.toString());
+
+		QACenter qaCenter = new QACenterImpl();
+		JSONObject returnJSON = new JSONObject();
+
+		JSONObject pointLayer = (JSONObject) object.get("ptLayers");
+		JSONObject lineStringLayer = (JSONObject) object.get("lnLayers");
+		JSONObject polygonLayer = (JSONObject) object.get("pgLayers");
+		JSONObject mtPointLayer = (JSONObject) object.get("mtptLayers");
+		JSONObject mtLineStringLayer = (JSONObject) object.get("mtlnLayers");
+		JSONObject mtPolygonLayer = (JSONObject) object.get("mtpgLayers");
+
+		if (pointLayer.values().size() != 0) {
+			Iterator<String> layerIDIterator = pointLayer.keySet().iterator();
+
+			SimpleFeatureCollection newLayer = new DefaultFeatureCollection();
+			SimpleFeatureCollection appLayer = new DefaultFeatureCollection();
+			JSONObject qaOption = new JSONObject();
+
+			while (layerIDIterator.hasNext()) {
+
+				SimpleFeatureCollection tempSFC = new DefaultFeatureCollection();
+
+				String layerID = layerIDIterator.next();
+				JSONObject layerObj = (JSONObject) pointLayer.get(layerID);
+				String stringGeo = String.valueOf(layerObj.get("feature"));
+				JSONObject ptLayerGeo = (JSONObject) convertService.stringToJSON(stringGeo);
+				JSONObject attribute = (JSONObject) layerObj.get("attribute");
+
+				if (attribute == null) {
+					tempSFC = convertService.converToSimpleFeatureCollection(ptLayerGeo);
+				} else {
+					tempSFC = convertService.converToSimpleFeatureCollection(ptLayerGeo, attribute);
+				}
+
+				boolean qaFlag = (Boolean) layerObj.get("qaFlag");
+				if (qaFlag) {
+					qaOption = (JSONObject) layerObj.get("qaOption");
+					newLayer = tempSFC;
+				} else {
+					appLayer = tempSFC;
+				}
+			}
+			
+			
+			JSONObject returnfcApp = qaCenter.pointLayerReportQA(qaOption, newLayer, appLayer);
+
+			ArrayList<QAErrReportVO> qaErrReportApp = (ArrayList<QAErrReportVO>) returnfcApp.get("ErrReport");
+			SimpleFeatureCollection errSCApp = (SimpleFeatureCollection) returnfcApp.get("ErrLayer");
+
+			returnJSON.put("ptErrLayers", convertService.stringToJSON(convertService.convertToGeoJSON(errSCApp).toString()));
+			returnJSON.put("ErrReport", qaErrReportApp);
+		}
+
+		if (lineStringLayer.values().size() != 0) {
+			Iterator<String> layerIDIterator = lineStringLayer.keySet().iterator();
+
+			SimpleFeatureCollection newLayer = new DefaultFeatureCollection();
+			SimpleFeatureCollection appLayer = new DefaultFeatureCollection();
+			JSONObject qaOption = new JSONObject();
+
+			while (layerIDIterator.hasNext()) {
+
+				SimpleFeatureCollection tempSFC = new DefaultFeatureCollection();
+
+				String layerID = layerIDIterator.next();
+				JSONObject layerObj = (JSONObject) lineStringLayer.get(layerID);
+				String stringGeo = String.valueOf(layerObj.get("feature"));
+				JSONObject lnLayerGeo = (JSONObject) convertService.stringToJSON(stringGeo);
+				JSONObject attribute = (JSONObject) layerObj.get("attribute");
+
+				if (attribute == null) {
+					tempSFC = convertService.converToSimpleFeatureCollection(lnLayerGeo);
+				} else {
+					tempSFC = convertService.converToSimpleFeatureCollection(lnLayerGeo, attribute);
+				}
+
+				boolean qaFlag = (Boolean) layerObj.get("qaFlag");
+				if (qaFlag) {
+					qaOption = (JSONObject) layerObj.get("qaOption");
+					newLayer = tempSFC;
+				} else {
+					appLayer = tempSFC;
+				}
+			}
+			JSONObject returnfcApp = qaCenter.lineStringLayerReportQA(qaOption, newLayer, appLayer);
+
+			ArrayList<QAErrReportVO> qaErrReportApp = (ArrayList<QAErrReportVO>) returnfcApp.get("ErrReport");
+			SimpleFeatureCollection errSCApp = (SimpleFeatureCollection) returnfcApp.get("ErrLayer");
+
+			returnJSON.put("lnErrLayers", convertService.stringToJSON(convertService.convertToGeoJSON(errSCApp).toString()));
+			returnJSON.put("ErrReport", qaErrReportApp);
+		}
+
+		if (polygonLayer.values().size() != 0) {
+			Iterator<String> layerIDIterator = polygonLayer.keySet().iterator();
+
+			SimpleFeatureCollection newLayer = new DefaultFeatureCollection();
+			SimpleFeatureCollection appLayer = new DefaultFeatureCollection();
+			JSONObject qaOption = new JSONObject();
+
+			while (layerIDIterator.hasNext()) {
+
+				SimpleFeatureCollection tempSFC = new DefaultFeatureCollection();
+
+				String layerID = layerIDIterator.next();
+				JSONObject layerObj = (JSONObject) polygonLayer.get(layerID);
+				String stringGeo = String.valueOf(layerObj.get("feature"));
+				JSONObject pgLayerGeo = (JSONObject) convertService.stringToJSON(stringGeo);
+				JSONObject attribute = (JSONObject) layerObj.get("attribute");
+
+				if (attribute == null) {
+					tempSFC = convertService.converToSimpleFeatureCollection(pgLayerGeo);
+				} else {
+					tempSFC = convertService.converToSimpleFeatureCollection(pgLayerGeo, attribute);
+				}
+
+				boolean qaFlag = (Boolean) layerObj.get("qaFlag");
+				if (qaFlag) {
+					qaOption = (JSONObject) layerObj.get("qaOption");
+					newLayer = tempSFC;
+				} else {
+					appLayer = tempSFC;
+				}
+			}
+			JSONObject returnfcApp = qaCenter.polygonLayerReportQA(qaOption, newLayer, appLayer);
+
+			ArrayList<QAErrReportVO> qaErrReportApp = (ArrayList<QAErrReportVO>) returnfcApp.get("ErrReport");
+			SimpleFeatureCollection errSCApp = (SimpleFeatureCollection) returnfcApp.get("ErrLayer");
+
+			returnJSON.put("pgErrLayers", convertService.stringToJSON(convertService.convertToGeoJSON(errSCApp).toString()));
+			returnJSON.put("ErrReport", qaErrReportApp);
+		}
+
+		if (mtPointLayer.values().size() != 0) {
+			Iterator<String> layerIDIterator = mtPointLayer.keySet().iterator();
+
+			SimpleFeatureCollection newLayer = new DefaultFeatureCollection();
+			SimpleFeatureCollection appLayer = new DefaultFeatureCollection();
+			JSONObject qaOption = new JSONObject();
+
+			while (layerIDIterator.hasNext()) {
+
+				SimpleFeatureCollection tempSFC = new DefaultFeatureCollection();
+
+				String layerID = layerIDIterator.next();
+				JSONObject layerObj = (JSONObject) mtPointLayer.get(layerID);
+				String stringGeo = String.valueOf(layerObj.get("feature"));
+				JSONObject mtPtLayerGeo = (JSONObject) convertService.stringToJSON(stringGeo);
+
+				JSONObject attribute = (JSONObject) layerObj.get("attribute");
+
+				if (attribute == null) {
+					tempSFC = convertService.converToSimpleFeatureCollection(mtPtLayerGeo);
+				} else {
+					tempSFC = convertService.converToSimpleFeatureCollection(mtPtLayerGeo, attribute);
+				}
+
+				boolean qaFlag = (Boolean) layerObj.get("qaFlag");
+				if (qaFlag) {
+					qaOption = (JSONObject) layerObj.get("qaOption");
+					newLayer = tempSFC;
+				} else {
+					appLayer = tempSFC;
+				}
+			}
+			JSONObject returnfcApp = qaCenter.mtPointLayerReportQA(qaOption, newLayer, appLayer);
+
+			ArrayList<QAErrReportVO> qaErrReportApp = (ArrayList<QAErrReportVO>) returnfcApp.get("ErrReport");
+			SimpleFeatureCollection errSCApp = (SimpleFeatureCollection) returnfcApp.get("ErrLayer");
+
+			returnJSON.put("mtptErrLayers", convertService.stringToJSON(convertService.convertToGeoJSON(errSCApp).toString()));
+			returnJSON.put("ErrReport", qaErrReportApp);
+		}
+
+		if (mtLineStringLayer.values().size() != 0) {
+			Iterator<String> layerIDIterator = mtLineStringLayer.keySet().iterator();
+
+			SimpleFeatureCollection newLayer = new DefaultFeatureCollection();
+			SimpleFeatureCollection appLayer = new DefaultFeatureCollection();
+			JSONObject qaOption = new JSONObject();
+
+			while (layerIDIterator.hasNext()) {
+
+				SimpleFeatureCollection tempSFC = new DefaultFeatureCollection();
+
+				String layerID = layerIDIterator.next();
+				JSONObject layerObj = (JSONObject) mtLineStringLayer.get(layerID);
+				String stringGeo = String.valueOf(layerObj.get("feature"));
+				JSONObject mtlnLayerGeo = (JSONObject) convertService.stringToJSON(stringGeo);
+				JSONObject attribute = (JSONObject) layerObj.get("attribute");
+
+				if (attribute == null) {
+					tempSFC = convertService.converToSimpleFeatureCollection(mtlnLayerGeo);
+				} else {
+					tempSFC = convertService.converToSimpleFeatureCollection(mtlnLayerGeo, attribute);
+				}
+
+				boolean qaFlag = (Boolean) layerObj.get("qaFlag");
+				if (qaFlag) {
+					qaOption = (JSONObject) layerObj.get("qaOption");
+					newLayer = tempSFC;
+				} else {
+					appLayer = tempSFC;
+				}
+			}
+			JSONObject returnfcApp = qaCenter.mtLineStringLayerReportQA(qaOption, newLayer, appLayer);
+
+			ArrayList<QAErrReportVO> qaErrReportApp = (ArrayList<QAErrReportVO>) returnfcApp.get("ErrReport");
+			SimpleFeatureCollection errSCApp = (SimpleFeatureCollection) returnfcApp.get("ErrLayer");
+
+			returnJSON.put("mtlnErrLayers", convertService.stringToJSON(convertService.convertToGeoJSON(errSCApp).toString()));
+			returnJSON.put("ErrReport", qaErrReportApp);
+		}
+
+		if (mtPolygonLayer.values().size() != 0) {
+			Iterator<String> layerIDIterator = mtPolygonLayer.keySet().iterator();
+
+			SimpleFeatureCollection newLayer = new DefaultFeatureCollection();
+			SimpleFeatureCollection appLayer = new DefaultFeatureCollection();
+			JSONObject qaOption = new JSONObject();
+
+			while (layerIDIterator.hasNext()) {
+
+				SimpleFeatureCollection tempSFC = new DefaultFeatureCollection();
+
+				String layerID = layerIDIterator.next();
+				JSONObject layerObj = (JSONObject) mtPolygonLayer.get(layerID);
+				String stringGeo = String.valueOf(layerObj.get("feature"));
+				JSONObject mtPgLayerGeo = (JSONObject) convertService.stringToJSON(stringGeo);
+				JSONObject attribute = (JSONObject) layerObj.get("attribute");
+
+				if (attribute == null) {
+					tempSFC = convertService.converToSimpleFeatureCollection(mtPgLayerGeo);
+				} else {
+					tempSFC = convertService.converToSimpleFeatureCollection(mtPgLayerGeo, attribute);
+				}
+
+				boolean qaFlag = (Boolean) layerObj.get("qaFlag");
+				if (qaFlag) {
+					qaOption = (JSONObject) layerObj.get("qaOption");
+					newLayer = tempSFC;
+				} else {
+					appLayer = tempSFC;
+				}
+			}
+
+			JSONObject returnfcApp = qaCenter.mtPolygonLayerReportQA(qaOption, newLayer, appLayer);
+
+			ArrayList<QAErrReportVO> qaErrReportApp = (ArrayList<QAErrReportVO>) returnfcApp.get("ErrReport");
+			SimpleFeatureCollection errSCApp = (SimpleFeatureCollection) returnfcApp.get("ErrLayer");
+
+			returnJSON.put("mtpgErrLayers", convertService.stringToJSON(convertService.convertToGeoJSON(errSCApp).toString()));
+			returnJSON.put("ErrReport", qaErrReportApp);
+		}
+		return returnJSON;
+	}
+
+	public List<QAErrReportVO> listToErrReport(List<Map<String, Object>> errList) {
+		List<QAErrReportVO> list = new ArrayList<QAErrReportVO>();
+
+		for (Map<String, Object> map : errList) {
+			Iterator<String> keys = map.keySet().iterator();
+			QAErrReportVO reportVO = new QAErrReportVO();
+			while (keys.hasNext()) {
+				String key = keys.next();
+				if (key.equals("type")) {
+					reportVO.setType((String) map.get(key));
+				} else if (key.equals("numOfItems")) {
+					reportVO.setNumOfItems(Double.parseDouble(map.get(key).toString()));
+				} else if (key.equals("numOfErr")) {
+					reportVO.setNumOfErr(Double.parseDouble(map.get(key).toString()));
+				} else if (key.equals("ratioOfErr")) {
+					reportVO.setRatioOfErr((String) map.get(key));
+				} else if (key.equals("accuracy")) {
+					reportVO.setAccuracy(Double.parseDouble(map.get(key).toString()));
+				} else if (key.equals("weights")) {
+					reportVO.setWeights(Double.parseDouble(map.get(key).toString()));
+				} else if (key.equals("weightedValue")) {
+					reportVO.setWeightedValue(Double.parseDouble(map.get(key).toString()));
+				}
+			}
+			list.add(reportVO);
+		}
+		return list;
+	}
+
+	@Transactional
+	public void insertQAreport(int rid, List<QAErrReportVO> errReport) {
+		if (errReport != null) {
+			Map<String, Object> infoMap = new HashMap<String, Object>();
+			infoMap.put("rid", rid);
+			for (QAErrReportVO reportVO : errReport) {
+				try {
+					infoMap.put("reportVO", reportVO);
+					errMapper.insertQAreport(infoMap);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	@Transactional
+	public List<QAErrReportVO> selectErrReports(int rid) {
+		List<QAErrReportVO> list = new ArrayList<QAErrReportVO>();
+		try {
+			list = errMapper.selectErrReports(rid);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return list;
+	}
+}

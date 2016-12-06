@@ -1,0 +1,68 @@
+package opennomics.com.main.chairman.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import opennomics.com.main.layer.service.LayerService;
+import opennomics.com.main.qa.domain.QAErrReportVO;
+import opennomics.com.main.qa.service.QAService;
+import opennomics.com.main.receipt.domain.ReceiptVO;
+import opennomics.com.main.receipt.service.ReceiptService;
+
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
+
+@Service
+public class ChairmanServiceImpl extends EgovAbstractServiceImpl implements ChairmanService {
+	
+	
+	@Autowired
+	private LayerService layerService;
+	
+	@Autowired
+	private ReceiptService receiptService;
+	
+	@Autowired
+	private QAService qaService;
+	
+	
+	
+	@SuppressWarnings("unchecked")
+	public JSONObject approvalRequestInfo(int rid, String tname){
+		JSONObject returnMap = new JSONObject();
+		
+		Map<String, Object> infoMap = new HashMap<String, Object>();
+		
+		infoMap.put("rid", rid);
+		infoMap.put("tname", tname);
+		
+		
+		JSONObject qaPreLayer = new JSONObject();
+		JSONObject qaAftLayer = new JSONObject();
+		List<QAErrReportVO> errReports = new ArrayList<QAErrReportVO>();
+		ReceiptVO receiptVO = new ReceiptVO();
+		
+		try {
+			qaPreLayer = layerService.selectQApreLayer(infoMap);
+			qaAftLayer = layerService.selectQAafLayer(infoMap);
+			errReports = qaService.selectErrReports(rid);
+			receiptVO = receiptService.selectReceipt(rid);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		returnMap.put("qaPreLayer", qaPreLayer);
+		returnMap.put("qaAftLayer", qaAftLayer);
+		returnMap.put("errReports", errReports);
+		returnMap.put("receiptVO", receiptVO);
+		
+		return returnMap;
+	}
+
+}

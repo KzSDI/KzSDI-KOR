@@ -1,0 +1,19 @@
+package opennomics.com.common.qa.center;
+
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.feature.SchemaException;
+import org.json.simple.JSONObject;
+
+public interface QACenter {
+	JSONObject pointLayerReportQA(JSONObject qaOption, SimpleFeatureCollection newLayer, SimpleFeatureCollection appLayer) throws SchemaException;
+	
+	JSONObject lineStringLayerReportQA(JSONObject qaOption, SimpleFeatureCollection newLayer, SimpleFeatureCollection appLayer) throws SchemaException;
+
+	JSONObject polygonLayerReportQA(JSONObject qaOption, SimpleFeatureCollection newLayer, SimpleFeatureCollection appLayer) throws SchemaException;
+
+	JSONObject mtPointLayerReportQA(JSONObject qaOption, SimpleFeatureCollection newLayer, SimpleFeatureCollection appLayer) throws SchemaException;
+
+	JSONObject mtLineStringLayerReportQA(JSONObject qaOption, SimpleFeatureCollection newLayer, SimpleFeatureCollection appLayer) throws SchemaException;
+
+	JSONObject mtPolygonLayerReportQA(JSONObject qaOption, SimpleFeatureCollection newLayer, SimpleFeatureCollection appLayer) throws SchemaException;
+}

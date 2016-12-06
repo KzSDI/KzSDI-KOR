@@ -1,0 +1,20 @@
+package opennomics.com.main.qa.service;
+
+import org.json.simple.JSONObject;
+
+
+
+
+/**
+ * ExeclService
+ * @author SG.Lee
+ * @Date 2016.06.15
+ * */
+public interface ExcelService {
+	//디렉토리 존재여부를 판단하다.
+	public boolean pathConfirm(String path);
+	
+	//엑셀정보를 받아 다운로드를 요청한다.
+	public boolean downloadExcel(JSONObject json);
+	
+}

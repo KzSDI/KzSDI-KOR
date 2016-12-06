@@ -1,0 +1,73 @@
+function showDownLoadExcelPopup(){
+	
+	var div = '<h4>엑셀다운로드</h4><div class="userInfo" align="center" style="padding: 15px 0 30px 81px;"><table id="idPwTable"><caption>정보확인</caption><colgroup><col width="145px" style="width: 134px;"><col width="*"></colgroup><tbody><tr><th scope="row" class="verTop"><label for="path">경로</label></th><td><input type="text" class="text userid" style="width: 350px;" name="path" id="path" placeholder="디폴트경로는 C드라이브 입니다." value="C:\"><input type="button" onclick="pathConfirm();" name="btnconfirm" id="btnconfirm" class="button" value="경로확인" /></br><label id="pathcomment" style="MARGIN-LEFT: 5px; color: red;">경로확인을 해주세요.</label></td>							</tr><tr><th scope="row" class="verTop"><label for="filename">파일명</label></th><td><input type="text" class="text userid disabled" style="width: 350px;" name="filen" id="filen" placeholder="파일명을 입력하세요."><input type="button" disabled="disabled" style="background: name="btndown" id="btndown" darkgrey;" onclick="downLoadExcel();" class="button" value="다운로드" /></br><label id="downcomment" style="MARGIN-LEFT: 5px; color: red;"></label></td></tr></tbody></table></div><div class="layClose"><button onclick="closeExcelPopup()"><img src="'+CONTEXT+'/img/popup/btn_x.png" alt="Close" /></button></div>';
+	$('#downLoadExcelPopup').append(div);
+	
+	$('#downLoadExcelPopup').xShowPopup();
+}
+
+function pathConfirm(){
+	var path = document.getElementById("path").value;
+	
+	if(path==null||path==""){
+		$('#pathcomment').text("파일경로를 입력하세요.");
+		return false;
+	}
+	
+	var url=CONTEXT+"/qa/pathConfirm.ajax";
+	var params ={
+		path : path
+	};
+	sendJsonRequest(url, params, pathConfirmCallback);
+}
+
+function pathConfirmCallback(result){
+	if(result==true){
+		$('#pathcomment').text("해당 디렉토리는 존재합니다.");
+		$('#pathcomment').attr("style","color:blue;");
+		$('#path').attr("class","text userid disabled");
+		$('#path').attr("disabled",true);
+		$('#btnconfirm').attr("disabled",true);
+		$('#btnconfirm').attr("style","background:darkgrey");
+		$('#filen').attr("class","text userid");
+		$('#filen').attr("disabled",false);
+		$('#btndown').attr("disabled",false);
+		$('#btndown').attr("style","background:rgb(31, 107, 182)");
+		}
+	else{
+		$('#pathcomment').text("해당 디렉토리는 존재하지 않습니다.");
+		$('#pathcomment').attr("style","color:red;");
+	}
+}
+
+
+function downLoadExcel(){
+	var rid = document.getElementById("rid").value;
+	var path = document.getElementById("path").value;
+	var fileName = document.getElementById("filen").value;
+	var errReportInfo = getErrReport();
+	
+	if(fileName==null||fileName==""){
+		$('#downcomment').text("파일명을 입력해주세요.");
+		return false;
+	}
+	
+	var url=CONTEXT+"/qa/downloadExcel.ajax";
+	var params ={
+		path : path,	
+		rid : rid,
+		fileName : fileName,
+		errReportInfo :errReportInfo 
+	};
+	sendObjectRequest(url, params, downLoadExcelCallback);
+}
+
+function downLoadExcelCallback(result){
+	downLoadExcelConfirm();	
+}
+
+
+function closeExcelPopup(){
+		$('.layerPop').xHidePopup();
+		$('#downLoadExcelPopup').empty();
+}

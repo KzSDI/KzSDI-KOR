@@ -1,0 +1,16 @@
+$(document).ready(function() {
+	approvalLayerLoad();
+});
+
+function approvalLayerLoad(){
+	var url = CONTEXT +"/layer/approvalLayerAjax.ajax";
+	var params = {
+	};
+	sendJsonRequest(url, params, approvalLayerDonCallback);
+}
+function approvalLayerDonCallback(result){
+
+	alertPopup("알림","승인된 레이어 불러옴");
+}
+
+

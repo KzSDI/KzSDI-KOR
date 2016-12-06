@@ -1,0 +1,80 @@
+package opennomics.com.main.chairman.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import opennomics.com.common.AbstractController;
+import opennomics.com.common.enums.EnUserType;
+import opennomics.com.main.chairman.service.ChairmanService;
+import opennomics.com.main.receipt.domain.ReceiptVO;
+import opennomics.com.main.user.domain.UserVO;
+
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+
+/**
+ * 로그인
+ * @author SG.Lee
+ * @Date 2016.05.22
+ * */
+@Controller("chairController")
+@RequestMapping("/chairman")
+public class ChairmanController extends AbstractController{
+	
+	@Autowired
+	ChairmanService chairmanService;
+	
+	@SuppressWarnings("unused")
+	@RequestMapping(value="/detailInfoView.do")
+	public ModelAndView detailInfoView(HttpServletRequest request,
+			@RequestParam(value="rid", required=true)String rid,
+			@RequestParam(value="tname", required=true)String tname
+			){
+		ModelAndView mav = new ModelAndView();
+		UserVO chairman = (UserVO) getSession(request,EnUserType.CHAIRMAN.getTypeName());
+		
+		String flag =  "false";
+		//세션이 없을경우 login 페이지호출
+		if(chairman==null)
+			flag = "false";
+		else
+			flag = "true";
+		
+		
+		if(flag=="true"){
+			mav.setViewName("/chairman/detailInfo");
+			mav.addObject("user", chairman);
+			mav.addObject("rid",rid);
+			mav.addObject("tname",tname);
+		}
+		else
+			mav.setViewName("redirect:/main.do");
+		return mav;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/appovalInfoLoad.ajax")
+	@ResponseBody
+	public JSONObject selectInspectorList(HttpServletRequest request,
+			@RequestParam(value="rid", required=true)int rid,
+			@RequestParam(value="tname", required=true)String tname
+			) {
+		JSONObject object = new JSONObject();
+
+		try {
+			object = chairmanService.approvalRequestInfo(rid, tname);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return object;
+	}
+}

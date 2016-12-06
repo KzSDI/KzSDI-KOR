@@ -1,0 +1,24 @@
+package opennomics.com.main.qa.service;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import opennomics.com.main.qa.domain.QAErrReportVO;
+
+import org.geotools.feature.SchemaException;
+import org.json.simple.JSONObject;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
+
+public interface QAService {
+
+	public JSONObject qaNewLayer(JSONObject geojson) throws SchemaException, IOException, NoSuchAuthorityCodeException, FactoryException;
+	
+	//Map -> List<QAErrReportVO>
+	public List<QAErrReportVO> listToErrReport(List<Map<String, Object>> errList) throws Exception;
+	
+	public void insertQAreport(int rid, List<QAErrReportVO> errReport) throws Exception;
+	
+	public List<QAErrReportVO> selectErrReports(int rid) throws Exception;
+}

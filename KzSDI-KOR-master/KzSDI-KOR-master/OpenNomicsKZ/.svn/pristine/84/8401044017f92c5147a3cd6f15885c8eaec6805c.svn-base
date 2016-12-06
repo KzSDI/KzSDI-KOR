@@ -1,0 +1,28 @@
+<html>
+<head>
+<%@ include file="/WEB-INF/jsp/common/common.jsp"%>
+<%-- <script src="${ctx}/js/gitbuilder/gitbuilder.js"></script> --%>
+<link rel="stylesheet" href="${ctx}/js/gitbuilder/gitbuilder.css">
+<script src="${ctx}/js/gserver/approvalMap.js"></script>
+<script src="${ctx}/js/spectrum/spectrum.js"></script>
+<link rel="stylesheet" href="${ctx}/js/spectrum/spectrum.css">
+<script src="${ctx}/js/ol3/ol.js"></script>
+<link rel="stylesheet" href="${ctx}/js/ol3/ol.css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>approval map</title>
+</head>
+<body>
+
+	<div id="wrap">
+		<div id="header">
+			<jsp:include page="/WEB-INF/jsp/common/header.jsp" />
+		</div>
+	
+	</div>
+
+	
+
+
+
+</body>
+</html>

@@ -1,0 +1,389 @@
+$(document).ready(function() {
+	approvalLayerLoad();
+});
+
+$(document).on("click", ".HideLayer", function() {
+	// 현재 버튼의 부모의 아이디를 저장
+	var layerId = $(this).parent().attr("id");
+	var layer = getLayerById(layerId);
+	if (layer.getVisible()) {
+		layer.setVisible(false);
+		$(this).button("option", "icons", {
+			primary : "ui-icon-radio-off",
+		});
+
+		$(this).button("widget").css("background-color", "#f6f6f6");
+
+	} else {
+		layer.setVisible(true);
+		$(this).button("option", "icons", {
+			primary : "ui-icon-radio-on",
+		});
+
+		$(this).button("widget").css("background-color", "#8dafff");
+
+	}
+});
+
+function approvalLayerLoad() {
+	var url = CONTEXT + "/layer/approvalLayerAjax.ajax";
+	var params = {};
+	sendJsonRequest(url, params, approvalLayerDonCallback);
+}
+function approvalLayerDonCallback(result) {
+//	 alert(JSON.stringify(result));
+	for (var i = 0; i < result.length; i++) {
+//		var layerName = result[i].workspace + ":" + result[i].name;
+		var layerName = result[i].name;
+		var nbBox = ol.proj.transformExtent(result[i].nbBox, "EPSG:4326", "EPSG:3857");
+		var url = "http://175.116.181.39:9990/geoserver/wms";
+		var layer = createWmsTileLayer(url, layerName, nbBox);
+		layer = setLayerProperties(layer, result[i].name, layerName, "wms", "new", "1", "false", null);
+		addApprovalLayerOnList(layer);
+	}
+	// alertPopup("알림","승인된 레이어 불러옴");
+}
+
+function setApprovalMapArea(div) {
+	var str = "<div id='approvalAttr' title='Information'><div id='attrTable'></div></div>";
+	$("body").append(str);
+	$("#approvalAttr").dialog({
+		autoOpen : false
+	});
+	var id = div.prop("id");
+
+	var view = new ol.View({
+		center : ol.proj.transform([ 71.433333, 51.166667 ], 'EPSG:4326', 'EPSG:3857'),
+		zoom : 4,
+		minZoom : 2,
+		maxZoom : 20,
+		projection : 'EPSG:3857'
+	});
+
+	var scaleLineControl = new ol.control.ScaleLine({
+		minWidth : 100,
+		className : 'ol-scale-line'
+	});
+
+	var zoomSlider = new ol.control.ZoomSlider();
+
+	var msPstn = new ol.control.MousePosition({
+		coordinateFormat : ol.coordinate.createStringXY(8),
+		projection : 'EPSG:4326',
+		className : 'custom-mouse-position',
+		target : document.getElementById('coord'),
+		undefinedHTML : '&nbsp;'
+	});
+
+	var overView = new ol.control.OverviewMap();
+
+	var rotate = new ol.control.Rotate({
+		className : "ol-rotate"
+	});
+
+	var map = new ol.Map({
+		controls : ol.control.defaults({
+			attributionOptions : /** @type {olx.control.AttributionOptions} */
+			({
+				collapsible : false
+			})
+		}).extend([ scaleLineControl, zoomSlider, msPstn, overView, rotate ]),
+		target : id,
+		layers : [],
+		view : view
+	});
+
+	map.on("moveend", function() {
+		if ((apprvlLyr !== undefined && apprvlLyr !== null) && apprvlLyr instanceof ol.layer.Vector) {
+			checkZoomGetFeature(apprvlLyr, apprvlLyr.get("name"));
+		}
+	});
+
+	map.on('singleclick', function(evt) {
+		var layers = getSelectedLayers();
+		if (layers.length === 1 && layers[0] instanceof ol.layer.Tile) {
+			var source = layers[0].getSource();
+			featureClick(source, evt)
+		}
+	});
+
+	map.on('pointermove', function(evt) {
+		if (evt.dragging) {
+			return;
+		}
+		var pixel = map.getEventPixel(evt.originalEvent);
+		var hit = map.forEachLayerAtPixel(pixel, function() {
+			return true;
+		});
+		map.getTargetElement().style.cursor = hit ? 'pointer' : '';
+	});
+
+	return map;
+}
+
+function QueryStringToJSON(url) {
+	var pairs = url.slice(1).split('&');
+
+	var result = {};
+	pairs.forEach(function(pair) {
+		pair = pair.split('=');
+		result[pair[0]] = decodeURIComponent(pair[1] || '');
+	});
+
+	return JSON.parse(JSON.stringify(result));
+}
+
+function featureClick(source, evt) {
+	var viewResolution = map.getView().getResolution();
+	if (source === undefined || source === null) {
+		console.log("no selected layer");
+		return;
+	}
+	var url = source.getGetFeatureInfoUrl(evt.coordinate, viewResolution, 'EPSG:3857', {
+		'INFO_FORMAT' : 'application/json'
+	});
+	// alert(url);
+	console.log(url);
+	var param = url.substring(url.indexOf("?") + 1);
+	var query_string = QueryStringToJSON(param);
+	console.log(query_string);
+
+	var cntr = getContextPath() + '/geoserver/proxy.ajax';
+	var obj = {
+		url : url
+	};
+	$.ajax({
+		async : false,
+		url : cntr,
+		type : "post",
+		dataType : "json",
+		beforeSend : function(){ //호출전실행
+			loadImageShow();
+		},
+		data : obj,
+
+		success : function(data, textStatus, jqXHR) {
+			loadImageHide();
+			console.log(JSON.stringify(data));
+			// alert(JSON.stringify(data));
+			// alert(JSON.stringify(data.features[0].properties));
+
+			if (data.features.length !== 0 && data.features[0].properties) {
+				var attr = data.features[0].properties;
+				var keys = Object.keys(attr);
+
+				var str = "";
+				str += "<table>";
+				str += "<tr>";
+				str += "<td style='border:1px solid #e3e3e3; padding:3px;'>속성명</td>";
+				str += "<td style='border:1px solid #e3e3e3; padding:3px;'>값</td>";
+				str += "</tr>";
+				for (var i = 0; i < keys.length; i++) {
+					str += "<tr>";
+					str += "<td style='border:1px solid #e3e3e3; padding:3px;'>" + keys[i] + "</td>";
+					str += "<td style='border:1px solid #e3e3e3; padding:3px;'>" + attr[keys[i]] + "</td>";
+					str += "</tr>";
+				}
+				str += "</table>";
+				$("#approvalAttr").empty();
+				$("#approvalAttr").append(str);
+				$("#approvalAttr").dialog("open");
+				var atPosition = "left+" + crsrPosition[0] + "px " + "top+" + crsrPosition[1] + "px";
+
+				$("#approvalAttr").dialog("option", "position", {
+					my : "left top",
+					at : atPosition,
+					of : document
+				});
+			} else {
+				$("#approvalAttr").dialog("close");
+			}
+
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+
+		}
+	});
+
+}
+function setApprovalLayerList(div) {
+	div.addClass("padd8");
+	div.css("height", 800);
+	div.css("overflow", "hidden");
+	var list = $('<div><ul id="ApprovalLayerList"></ul></div>');
+	div.append(list);
+	selectableApprovalInit();
+}
+
+// 레이어 리스트 초기화
+function selectableApprovalInit() {
+	$("#ApprovalLayerList").sortable({
+		handle : ".handle",
+		stop : function(event, ui) {
+			// 선택한 li의 배열
+			var layerLiArr = $("#ApprovalLayerList li").toArray();
+			// 배열을 뒤집는다
+			layerLiArr.reverse();
+			// 모든 레이어 획득
+			var layers = map.getLayers();
+			// 모든 레이어를 배열로 획득
+			var addedLayers = layers.getArray();
+
+			for (var i = 0; i < layerLiArr.length; i++) {
+				// 레이어 아이디와 같은 레이어를 검색
+				for (var j = 0; j < addedLayers.length; j++) {
+					// li의 아이디가 레이어의 아이디와 같다면
+					if (addedLayers[j].get("id") === $(layerLiArr[i]).attr("id")) {
+						if (addedLayers[j] instanceof ol.layer.Group) {
+							addedLayers[j].setZIndex(i);
+							var layers = addedLayers[j].getLayers().getArray();
+							for (var k = 0; k < layers.length; k++) {
+								layers[k].setZIndex(i);
+							}
+						} else {
+							// li의 인덱스를 레이어의 인덱스로 설정
+							addedLayers[j].setZIndex(i);
+							break;
+						}
+					}
+				}
+			}
+		}
+	}).addClass("layerSelectable").selectable({
+		filter : "li",
+		cancel : ".handle, .HideLayer",
+		stop : function(event, ui) {
+
+			// ul 객체를 저장
+			var p1 = $(this);
+
+			// 선택한 li들의 객체배열을 획득
+			var selected = $(".layerSelectable .ui-selected");
+
+			// 모든 레이어 획득
+			var allLayers = map.getLayers().getArray();
+
+			// 모든 레이어를 비선택으로 설정
+			for (var i = 0; i < allLayers.length; i++) {
+				allLayers[i].set("selected", 0);
+			}
+
+			// 각각의 li마다
+			selected.each(function() {
+				// li의 부모를 획득
+				var p2 = $(this).parent();
+				// 같은 부모의 자식이라면
+				if (p1.get(0) === p2.get(0)) {
+					// selectable에서 선택한 아이디를 가진 레이어 객체획득
+					var selectedLayer = getLayerById($(this).attr("id"));
+					// 선택여부를 1로 설정
+					selectedLayer.set("selected", 1);
+				} else {
+					// 아니라면 메시지 출력
+					alert("it isn't a descendant");
+				}
+			});
+			// 선택한 레이어 객체들 획득
+			var selected = getSelectedLayers();
+
+			// 선택한 레이어가 2개 이상이면
+			if (selected.length > 1) {
+				// 레이어 이름 배열로 초기화
+				var layerNames = [];
+				// 선택된 레이어들의 이름을 배열에 추가
+				for (var i = 0; i < selected.length; i++) {
+					layerNames.push(selected[i].get("name"));
+				}
+
+				// 선택한 레이어가 1개라면
+			} else if (selected.length === 1) {
+
+				var layer = selected[0];
+
+				var view = map.getView();
+
+				if (layer instanceof ol.layer.Image) {
+					view.fit(layer.getExtent(), map.getSize());
+				} else if (layer instanceof ol.layer.Vector) {
+					var source = layer.getSource();
+					var features = source.getFeatures();
+					if (features.length > 0) {
+						view.fit(source.getExtent(), map.getSize());
+					}
+				} else if (layer instanceof ol.layer.Group) {
+					var layers = layer.getLayers().getArray();
+					for (var i = 0; i < layers.length; i++) {
+						if (layers[i] instanceof ol.layer.Vector) {
+							var source = layers[i].getSource();
+							var features = source.getFeatures();
+							if (features.length > 0) {
+								view.fit(source.getExtent(), map.getSize());
+							}
+						}
+					}
+				} else if (layer instanceof ol.layer.Tile) {
+					view.fit(layer.getExtent(), map.getSize());
+				}
+			}
+		}
+	}).find("li").addClass("ui-corner-all").prepend(
+			"<span class='handle'><span class='ui-icon ui-icon-carat-2-n-s' style='top:50%;'></span></span>");
+
+}
+// 생성된 레이어 맵과 리스트에 추가
+// *************************************************************************
+// Add a layer on the map and list
+// Parameter
+// createdLayer: The layer will be listed
+// author: YJ.SO
+// *************************************************************************
+function addApprovalLayerOnList(createdLayer) {
+	if (createdLayer !== null || createdLayer !== undefined) {
+		map.addLayer(createdLayer);
+	} else {
+		alert("Layer is not created");
+	}
+
+	setApprovalLayer(createdLayer);
+	updateApprovalLayerList(map);
+	removeMyInteraction(map);
+}
+
+// 레이어 리스트 업데이트
+// *************************************************************************
+// Update the layer list of the map
+// author: YJ.SO
+// *************************************************************************
+function updateApprovalLayerList(map) {
+
+	var layers = map.getLayers();
+
+	var addedLayers = layers.getArray();
+
+	addedLayers.sort(function(a, b) {
+		return a.getZIndex() < b.getZIndex() ? -1 : a.getZIndex() > b.getZIndex() ? 1 : 0;
+	});
+
+	$("#ApprovalLayerList").empty();
+	for (var i = 0; i < addedLayers.length; i++) {
+
+		var layerKeysStr = "";
+		layerKeysStr += "<li id='" + addedLayers[i].get("id") + "' class='ApprLayerLi'><p class='ListedLayer'>"
+				+ addedLayers[i].get("name") + "</p><button class='HideLayer'>Show/Hide</button></li>";
+
+		$("#ApprovalLayerList").prepend(layerKeysStr);
+
+	}
+	$(".ListedLayer").css("display", "inline-block").css("width", 160).css("height", 16).css("text-overflow",
+			"ellipsis");
+	$(".HideLayer").button({
+		icons : {
+			primary : "ui-icon-radio-on",
+		},
+		text : false
+	});
+	$(".HideLayer").each(function() {
+		$(this).button("widget").css("background-color", "#8dafff");
+	});
+	selectableApprovalInit();
+}

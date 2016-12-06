@@ -1,0 +1,42 @@
+package opennomics.com.main.layer.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.json.simple.JSONObject;
+
+import opennomics.com.main.layer.domain.LayerVO;
+import opennomics.geosolutions.geoserver.rest.GeoServerRESTManager;
+import opennomics.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import opennomics.geosolutions.geoserver.rest.decoder.RESTFeatureType;
+
+
+
+/**
+ *
+ * @author SG.Lee
+ * @Date
+ * */
+public interface LayerService {
+ 
+	public LayerVO createLayer(RESTDataStore dataStore, RESTFeatureType featureType);
+
+	public JSONObject selectDBReqestLayers(Map<String, Object> infoMap);
+	public LayerVO getAppLayerInfo(String tname);
+	
+	//검수후 레이어 DB저장
+	public JSONObject insertLayers(int rid, List<Map<String,Object>> layerMap,Map<String, String> attInfo, String tname);
+	
+	//검수후 레이어 리스트 저장
+	public void insertQaAfter(int rid, List<Integer> oidList);
+	
+	//검수전 레이어 정보를 가져오다
+	public JSONObject selectQApreLayer(Map<String, Object> infoMap);
+	
+	//검수후 레이어 정보를 가져오다
+	public JSONObject selectQAafLayer(Map<String, Object> infoMap);
+	
+	//승인된 레이어 이름을 가져오다
+	public List<JSONObject> selectAPLayerNames();
+}
+ 

@@ -1,0 +1,29 @@
+package opennomics.com.main.receipt.persistent;
+
+import java.util.List;
+import java.util.Map;
+
+import opennomics.com.main.receipt.domain.ReceiptVO;
+import egovframework.rte.psl.dataaccess.mapper.Mapper;
+
+
+
+/**
+ * 접수현황과 관련된 DB처리를 수행한다.
+ * 
+ * @author SG.Lee
+ * @Date 2016.05
+ * */
+@Mapper(value="receiptMapper")
+public interface ReceiptMapper {
+			List<ReceiptVO> selectAllReceiptList(int pageNum) throws Exception;
+			int selectAllReceiptListCount() throws Exception;
+			List<ReceiptVO> selectChairReceiptList(int pageNum) throws Exception;
+			int selectChairReceiptListCount() throws Exception;
+			List<ReceiptVO> selectReceiptList(Map<String, Object> infoMap) throws Exception;
+			int selectReceiptListCount(Map<String, Object> infoMap) throws Exception;
+			void updateApprovalRequest(Map<String, Object> updateMap) throws Exception;
+			ReceiptVO selectReceipt(int rid) throws Exception;
+			void updateLastApprovalRequest(Map<String, Object> updateMap) throws Exception;
+			void updateLastDisApprovalRequest(Map<String, Object> updateMap) throws Exception;
+}

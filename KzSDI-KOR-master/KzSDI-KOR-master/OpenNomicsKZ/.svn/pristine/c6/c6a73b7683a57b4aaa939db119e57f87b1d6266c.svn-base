@@ -1,0 +1,243 @@
+package opennomics.com.main.layer.service;
+
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import opennomics.com.main.layer.domain.LayerVO;
+import opennomics.com.main.layer.persistent.LayerMapper;
+import opennomics.com.main.user.persistent.UserMapper;
+import opennomics.geosolutions.geoserver.rest.GeoServerRESTManager;
+import opennomics.geosolutions.geoserver.rest.GeoServerRESTReader;
+import opennomics.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import opennomics.geosolutions.geoserver.rest.decoder.RESTFeatureType;
+import opennomics.geosolutions.geoserver.rest.decoder.RESTLayer;
+import opennomics.geosolutions.geoserver.rest.decoder.RESTLayerList;
+import opennomics.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
+
+import org.json.simple.JSONObject;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
+@Service
+public class LayerServiceImpl implements LayerService {
+	
+	@Resource(name="layerMapper")
+	private LayerMapper layerMapper;
+	
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public LayerVO createLayer(RESTDataStore dataStore, RESTFeatureType featureType){
+		LayerVO layer = null;
+		
+		if (dataStore != null && featureType != null) {
+			String wsName;
+			String dsName;
+			String lName;
+			String srs;
+			JSONObject nbBox;
+			String dsType;
+			String geomType;
+			JSONObject attInfo;
+
+			lName = featureType.getName();
+			srs = featureType.getSRS();
+			nbBox = new JSONObject();
+			attInfo = new JSONObject();
+			nbBox.put("minx", featureType.getMinX());
+			nbBox.put("miny", featureType.getMinY());
+			nbBox.put("maxx", featureType.getMaxX());
+			nbBox.put("maxy", featureType.getMaxY());
+			dsName = featureType.getStoreName();
+			geomType = featureType.getGeomType();
+			attInfo = featureType.getAttType();
+			wsName = dataStore.getWorkspaceName();
+			dsType = dataStore.getStoreType();
+
+			layer = new LayerVO(wsName, dsName, lName, srs, nbBox, dsType, geomType, attInfo);
+		}
+		return layer;
+	}
+	
+	
+	@Transactional
+	public JSONObject selectDBReqestLayers(Map<String, Object> infoMap){
+		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+		DBLayerConvert convert = new DBLayerConvert();
+		JSONObject geoJSON = new JSONObject();
+		try {
+			list = layerMapper.selectDBReqestLayers(infoMap);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String tname = (String) infoMap.get("tname");
+		if(list!=null){
+			geoJSON = convert.convertToGeoJSON(list, tname);
+		}
+		else
+			geoJSON = null;
+		
+		return geoJSON;
+	}
+	
+	@SuppressWarnings({ "unused", "deprecation" })
+	@Transactional
+	public LayerVO getAppLayerInfo(String tname){
+		LayerVO layerVO = new LayerVO();
+		GeoServerRESTReader reader = null;
+		try {
+			reader = new GeoServerRESTReader("http://175.116.181.39:9990/geoserver", "admin", "geoserver");
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		
+		boolean flag = reader.existGeoserver();
+		
+		
+		if(flag=true){
+			RESTLayer layer = reader.getLayer(tname+"_approval");
+			RESTFeatureType featureType = reader.getFeatureType(layer);
+			RESTDataStore dataStore = reader.getDatastore(featureType);
+			layerVO = createLayer(dataStore, featureType);
+		}
+		else
+			layerVO =null;
+		
+		return layerVO;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public JSONObject insertLayers(int rid, List<Map<String,Object>> layersMap,Map<String, String> attInfo, String tname){
+		boolean flag = false;
+		JSONObject object = new JSONObject();
+		DBLayerConvert convert = new DBLayerConvert();
+		List<Integer> oidList = new ArrayList<Integer>();
+		if(layersMap!=null){
+			try {
+ 				for(Map<String,Object> layerMap : layersMap){
+ 					Map<String, Object> requestMap = new HashMap<String, Object>();
+ 					requestMap = convert.createQuery(layerMap, attInfo);
+ 					requestMap.put("tname", tname);
+ 					requestMap.put("seq","'"+tname+"_pkey_seq'");
+					layerMapper.insertLayers(requestMap);
+					int oid = Integer.parseInt(requestMap.get("objectid").toString());
+					oidList.add(oid);
+				}
+ 				flag = true;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				flag = false;
+			}
+		}
+		object.put("flag", flag);
+		object.put("oidList", oidList);
+		return object;
+	}
+	
+	@Transactional
+	public void insertQaAfter(int rid, List<Integer> oidList){
+		Map<String, Integer> infoMap = new HashMap<String, Integer>();
+		infoMap.put("rid", rid);
+		
+		for(int i=0; i<oidList.size();i++){
+			infoMap.put("oid", oidList.get(i));
+			try {
+				layerMapper.insertQaAfter(infoMap);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	
+	
+	@Transactional
+	public JSONObject selectQApreLayer(Map<String, Object> infoMap){
+		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+		JSONObject geoJSON = new JSONObject();
+		DBLayerConvert convert = new DBLayerConvert();
+		try {
+			list = layerMapper.selectQApreLayer(infoMap);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String tname = (String) infoMap.get("tname");
+		if(list!=null){
+			geoJSON = convert.convertToGeoJSON(list, tname);
+		}
+		else
+			geoJSON = null;
+		return geoJSON;
+	}
+	
+	@Transactional
+	public JSONObject selectQAafLayer(Map<String, Object> infoMap){
+		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+		JSONObject geoJSON = new JSONObject();
+		DBLayerConvert convert = new DBLayerConvert();
+		try {
+			list = layerMapper.selectQAafLayer(infoMap);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String tname = (String) infoMap.get("tname");
+		if(list!=null){
+			geoJSON = convert.convertToGeoJSON(list, tname);
+		}
+		else
+			geoJSON = null;
+		return geoJSON;
+	}
+	
+	@SuppressWarnings({ "deprecation", "unchecked" })
+	public List<JSONObject> selectAPLayerNames(){
+		List<JSONObject> returnList = new ArrayList<JSONObject>();
+		
+		GeoServerRESTReader reader = null;
+		try {
+			reader = new GeoServerRESTReader("http://175.116.181.39:9990/geoserver", "admin", "geoserver");
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		
+		
+		RESTLayerList layerList = reader.getLayers();
+		List<String> layerNames = layerList.getNames();
+		
+		for (int i = 0; i < layerNames.size(); i++) {
+			JSONObject json = new JSONObject();
+			RESTLayer layer = reader.getLayer(layerNames.get(i));
+			RESTFeatureType featureType = reader.getFeatureType(layer);
+
+			if (featureType != null) {
+				String nameSpace = featureType.getNameSpace();
+				String featureName = featureType.getName();
+				boolean flag = featureName.contains("approval");
+				if (flag) {
+					json.put("workspace", nameSpace);
+					json.put("name", featureName);
+					System.out.println(featureType.getNameSpace());
+					System.out.println(featureType.getName());
+					returnList.add(json);
+				}
+			}
+		}
+		return returnList;
+	}
+}

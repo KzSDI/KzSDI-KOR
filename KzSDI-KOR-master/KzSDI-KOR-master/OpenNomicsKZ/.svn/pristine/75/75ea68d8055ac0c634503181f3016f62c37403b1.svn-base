@@ -1,0 +1,296 @@
+.ui-widget{
+	font-size:12px;
+	
+}
+
+#map {
+	width: 1535px;
+	height: 898px;
+	float: left;
+	
+/* 	float: left; */
+/* 	min-width: 700px; */
+/* 	width: 1605px; */
+/* 	height: 898px; */
+}
+
+/* layer list */
+#layerList {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	font-size:12px;
+}
+
+.layerLi {
+	height: auto;
+	background: white;
+	position: relative;
+	margin: 1em 0;
+	padding: 1em;
+	border: 1px solid gray;
+	list-style: none;
+	padding-left: 42px;
+}
+
+li .handle {
+	background: #f8f8f8;
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+/* 	padding: 8px; */
+padding-top: 11px;
+padding-right: 10px;
+padding-bottom: 10px;
+padding-left: 8px; 
+}
+
+.ui-selecting {
+	background: #eee;
+}
+
+.ui-selecting .handle {
+	background: #ddd;
+}
+
+.ui-selected {
+	background: #def;
+}
+
+.ui-selected .handle {
+	background: #cde;
+}
+
+.styleAttribute {
+	/* 	float: left; */
+	width: 445px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+/* 	border: 1px solid black; */
+}
+
+.markerImg {
+	width: 30px;
+	height: auto;
+}
+
+.attrKey {
+	width: 100px;
+}
+
+input[type=text]:read-only {
+	background-color: transparent;
+}
+
+.AttrCol {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.LayerTypeTabs {
+	padding: 0;
+}
+
+#layerList {
+	
+}
+#layerList li {
+	
+}
+
+#layerList .handle {
+}
+
+#layerList .handle .ui-icon {
+}
+
+.marg5 {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.padd8 {
+	padding: 8px;
+}
+#flipDir {
+	width: 178px;
+}
+
+#rotDgr {
+	width: 105px;
+}
+
+.popupTool {
+	overflow: visible;
+}
+
+.ol-overviewmap {
+	top: 282px;
+	height: 28px;
+}
+
+#coord {
+	padding: 2px;
+	border: 1px solid #c5c5c5;
+	margin-bottom: 6px;
+	text-align: center;
+}
+
+.tooltip {
+	position: relative;
+	background: rgba(0, 0, 0, 0.5);
+	border-radius: 4px;
+	color: white;
+	padding: 4px 8px;
+	opacity: 0.7;
+	white-space: nowrap;
+}
+
+.tooltip-measure {
+	opacity: 1;
+	font-weight: bold;
+}
+
+.tooltip-static {
+	background-color: #ffcc33;
+	color: black;
+	border: 1px solid white;
+}
+
+.tooltip-measure:before, .tooltip-static:before {
+	border-top: 6px solid rgba(0, 0, 0, 0.5);
+	border-right: 6px solid transparent;
+	border-left: 6px solid transparent;
+	content: "";
+	position: absolute;
+	bottom: -6px;
+	margin-left: -7px;
+	left: 50%;
+}
+
+.tooltip-static:before {
+	border-top-color: #ffcc33;
+}
+
+#mapProject {
+	width: 100%;
+}
+
+#lnspnr {
+	width: 22px;
+}
+
+#ptspnr {
+	width: 50px;
+}
+
+#pointType {
+	width: 100px;
+}
+
+.ui-selectmenu-button{
+	font-size: 11px;
+}
+
+#tabs {
+	background: transparent;
+	border: none;
+}
+
+#tabs .ui-widget-header {
+	background: transparent;
+	border: none;
+	border-bottom: 1px solid #c0c0c0;
+	-moz-border-radius: 0px;
+	-webkit-border-radius: 0px;
+	border-radius: 0px;
+}
+
+#tabs .ui-tabs-nav .ui-state-default {
+	background: transparent;
+	border: none;
+}
+
+#tabs .ui-tabs-nav .ui-state-active {
+	background: transparent;
+	border: none;
+}
+
+#tabs .ui-tabs-nav .ui-state-default a {
+	color: #c0c0c0;
+}
+
+#tabs .ui-tabs-nav .ui-state-active a {
+	color: #000000;
+}
+
+.typeRadio {
+/* 	margin-left: 55px; */
+/* 	margin-right: 20px; */
+	margin-left: 80px;
+	margin-right: 20px;
+/* 	border: 1px solid red; */
+}
+
+#baseType {
+	width: 450px;
+}
+
+#strokeStyle {
+	float: left;
+/* 	border: 1px solid green; */
+}
+
+.innerStyleAttribute {
+	float: left;
+	width: 200px;
+	border: 1px solid red;
+}
+
+.styleKeyName {
+	float: left;
+	width: 220px;
+/* 	border: 1px solid blue; */
+	height: 20px;
+	line-height: 20px;
+}
+
+#ptspnr, #lnspnr{
+	height: 24px;
+	width: 25px;
+}
+
+.dotOrMarker {
+	display: inline;
+}
+
+.styleKeyName label {
+/* 	border: 2px solid orange; */
+	width: 55px;
+}
+#iconTab {
+/* 	border: 1px solid red; */
+}
+.LineBox{
+	border: 1px solid #e3e3e3;
+	padding: 5px;
+}
+#serverUrl, #serverLayer, #wfsUrl, #wfsLayerName, #wmstUrl, #wmstLayerName, #wmstTime{
+	width: 435px;
+	margin: 5px;
+}
+
+.rptOpen {
+	bottom: 0px;
+	left: 800px;
+}
+
+.layerPropBtn {
+	float: right;
+	bottom: 6px;
+}
+
+.openQAOptBtn {
+	float: right;
+}

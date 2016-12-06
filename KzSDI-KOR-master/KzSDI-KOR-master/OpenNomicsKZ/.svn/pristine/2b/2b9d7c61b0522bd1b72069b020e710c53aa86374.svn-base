@@ -1,0 +1,23 @@
+package opennomics.com.main.layer.persistent;
+
+import java.util.List;
+import java.util.Map;
+
+import org.json.simple.JSONObject;
+
+import opennomics.com.main.layer.domain.LayerVO;
+import opennomics.com.main.receipt.domain.ReceiptVO;
+import egovframework.rte.psl.dataaccess.mapper.Mapper;
+
+@Mapper(value="layerMapper")
+public interface LayerMapper {
+
+	public List<Map<String,Object>> selectDBReqestLayers(Map<String, Object> infoMap) throws Exception;
+	public void insertLayers(Map<String,Object> layerMap) throws Exception;
+	public void insertQaAfter(Map<String, Integer> infoMap) throws Exception;
+	public void insertLastApproval(Map<String, Integer> infoMap) throws Exception;
+	public void insertLastDisApproval(Map<String, Integer> infoMap)throws Exception;
+	public List<Map<String,Object>> selectQApreLayer(Map<String, Object> infoMap)throws Exception;
+	public List<Map<String,Object>> selectQAafLayer(Map<String, Object> infoMap)throws Exception;
+	public List<Integer> selectQaAfterOids(int rid)throws Exception;
+}
