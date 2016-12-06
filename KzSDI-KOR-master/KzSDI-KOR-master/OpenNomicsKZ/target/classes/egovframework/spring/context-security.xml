@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.egovframe.go.kr/schema/egov-security http://www.egovframe.go.kr/schema/egov-security/egov-security-3.0.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+
+
+<bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+		<security:filter-chain-map path-type="ant">
+			<security:filter-chain pattern="/**/*.do" filters="loginCheckFilter" />
+		</security:filter-chain-map>
+	</bean>
+	<bean id="loginCheckFilter" class="opennomics.com.common.LoginCheckFilter" />
+	
+	<!-- <security:http pattern="/css/＊＊" security="none" />
+	<security:http pattern="/img/＊＊" security="none" />
+	<security:http pattern="/js/＊＊" security="none" />
+	<security:http pattern="/html/**" security="none"/>
+	<security:http pattern="\A/WEB-INF/jsp/.*\Z" request-matcher="regex" security="none" />
+
+	<security:http auto-config="true" access-denied-page="/system/accessDenied.do" request-matcher="ant">
+		<security:form-login login-processing-url="/j_spring_security_check"
+			authentication-failure-url="/user/mainView.do?login_error=1"
+			default-target-url="/user/loginView.do" 
+			login-page="/user/mainView.do?" 
+			authentication-success-handler-ref="loginSuccessHandler" />
+		<security:anonymous granted-authority="ANONYMOUS" />
+		<security:logout logout-success-url="/user/loginView.do" />
+		<security:custom-filter before="FILTER_SECURITY_INTERCEPTOR"  ref="filterSecurityInterceptor" />
+	</security:http>
+
+	<bean id="loginSuccessHandler" class="com.main.common.LoginSuccessHandler" />
+	<bean id="roleHierarchy"
+		class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
+		<property name="hierarchy" ref="hierarchyStrings" />
+	</bean>
+
+	<bean id="hierarchyStrings"
+		class="egovframework.rte.fdl.security.userdetails.hierarchicalroles.HierarchyStringsFactoryBean"
+		init-method="init">
+		<property name="securedObjectService" ref="securedObjectService" />
+	</bean>
+	
+	<bean id="securedObjectService"
+		class="egovframework.rte.fdl.security.securedobject.impl.SecuredObjectServiceImpl">
+		<property name="securedObjectDAO" ref="securedObjectDAO" />
+		<property name="requestMatcherType" value="ant" />
+	</bean>
+
+	<bean id="securedObjectDAO"
+		class="egovframework.rte.fdl.security.securedobject.impl.SecuredObjectDAO">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sqlHierarchicalRoles">
+			<value>
+				select a.child_role child, a.parent_role parent
+				from
+				roles_hierarchy a, roles_hierarchy b
+				where a.child_role =
+				b.parent_role(+)
+			</value>
+		</property>
+		<property name="sqlRolesAndUrl">
+			<value>
+				select a.resource_pattern url, r.role_name authority
+				from secured_resources a, secured_resources_role b, roles r
+				where a.resource_id =	b.resource_id
+				and b.authority =	r.authority
+				and a.resource_type = 'URL'
+				order by a.sort_order asc
+			</value>
+		</property>
+	</bean>
+
+
+	<bean id="filterSecurityInterceptor"
+		class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+		<property name="authenticationManager"  ref="org.springframework.security.authenticationManager" />
+		<property name="accessDecisionManager" ref="accessDecisionManager" />
+		<property name="securityMetadataSource" ref="databaseSecurityMetadataSource" />
+	</bean>
+
+
+	<bean id="databaseSecurityMetadataSource"
+		class="egovframework.rte.fdl.security.intercept.EgovReloadableFilterInvocationSecurityMetadataSource">
+		<constructor-arg ref="requestMap" />
+		<property name="securedObjectService" ref="securedObjectService" />
+	</bean>
+
+	<bean id="requestMap"
+		class="egovframework.rte.fdl.security.intercept.UrlResourcesMapFactoryBean"
+		init-method="init">
+		<property name="securedObjectService" ref="securedObjectService" />
+	</bean>
+	
+
+	<bean id="accessDecisionManager"
+		class="org.springframework.security.access.vote.AffirmativeBased">
+		<property name="allowIfAllAbstainDecisions" value="false" />
+		<property name="decisionVoters">
+			<list>
+				<bean class="org.springframework.security.access.vote.RoleVoter">
+					<property name="rolePrefix" value="ROLE_" />
+				</bean>
+				<bean class="org.springframework.security.access.vote.AuthenticatedVoter" />
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
+		<constructor-arg value="256" />
+	</bean>
+
+	<security:authentication-manager>
+		<security:authentication-provider user-service-ref="jdbcUserService">
+			<security:password-encoder ref="passwordEncoder" />
+		</security:authentication-provider>
+	</security:authentication-manager> -->
+	
+</beans>
